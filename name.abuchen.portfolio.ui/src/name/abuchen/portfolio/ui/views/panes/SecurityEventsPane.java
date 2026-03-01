@@ -27,6 +27,7 @@ import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.Security;
 import name.abuchen.portfolio.model.SecurityEvent;
 import name.abuchen.portfolio.model.SecurityEvent.DividendEvent;
+import name.abuchen.portfolio.model.SecurityEvent.OptionEvent;
 import name.abuchen.portfolio.money.Values;
 import name.abuchen.portfolio.ui.Images;
 import name.abuchen.portfolio.ui.Messages;
@@ -42,6 +43,7 @@ import name.abuchen.portfolio.ui.util.viewers.DateLabelProvider;
 import name.abuchen.portfolio.ui.util.viewers.ShowHideColumnHelper;
 import name.abuchen.portfolio.ui.util.viewers.StringEditingSupport;
 import name.abuchen.portfolio.ui.wizards.events.CustomEventWizard;
+import name.abuchen.portfolio.ui.wizards.events.OptionEventWizard;
 import name.abuchen.portfolio.util.TextUtil;
 
 public class SecurityEventsPane implements InformationPanePage
@@ -150,6 +152,80 @@ public class SecurityEventsPane implements InformationPanePage
                         .create(e -> e instanceof DividendEvent dividendEvent ? dividendEvent.getAmount() : null));
         support.addColumn(column);
 
+        column = new Column(Messages.ColumnOptionType, SWT.NONE, 60);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                return element instanceof OptionEvent oe && oe.getOptionType() != null
+                                ? oe.getOptionType().toString()
+                                : null;
+            }
+        });
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getOptionType() : null));
+        support.addColumn(column);
+
+        column = new Column(Messages.ColumnOptionDirection, SWT.NONE, 70);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                return element instanceof OptionEvent oe && oe.getDirection() != null
+                                ? oe.getDirection().toString()
+                                : null;
+            }
+        });
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getDirection() : null));
+        support.addColumn(column);
+
+        column = new Column(Messages.ColumnStrikePrice, SWT.NONE, 80);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                return element instanceof OptionEvent oe && oe.getStrikePrice() != null
+                                ? Values.Money.formatAlwaysVisible(oe.getStrikePrice(), client.getBaseCurrency())
+                                : null;
+            }
+        });
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getStrikePrice() : null));
+        support.addColumn(column);
+
+        column = new Column(Messages.ColumnExpirationDate, SWT.NONE, 80);
+        column.setLabelProvider(
+                        new DateLabelProvider(e -> e instanceof OptionEvent oe ? oe.getExpirationDate() : null));
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getExpirationDate() : null));
+        support.addColumn(column);
+
+        column = new Column(Messages.ColumnOptionPremium, SWT.NONE, 80);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                return element instanceof OptionEvent oe && oe.getPremium() != null
+                                ? Values.Money.formatAlwaysVisible(oe.getPremium(), client.getBaseCurrency())
+                                : null;
+            }
+        });
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getPremium() : null));
+        support.addColumn(column);
+
+        column = new Column(Messages.ColumnContracts, SWT.NONE, 60);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                return element instanceof OptionEvent oe ? String.valueOf(oe.getContracts()) : null;
+            }
+        });
+        column.setSorter(ColumnViewerSorter.create(e -> e instanceof OptionEvent oe ? oe.getContracts() : null));
+        support.addColumn(column);
+
         column = new Column(Messages.ColumnDetails, SWT.None, 300);
         column.setLabelProvider(new ColumnLabelProvider()
         {
@@ -194,6 +270,18 @@ public class SecurityEventsPane implements InformationPanePage
             public void run()
             {
                 CustomEventWizard wizard = new CustomEventWizard(stylingEngine, client, security);
+                WizardDialog dialog = new WizardDialog(ActiveShell.get(), wizard);
+                if (dialog.open() == Window.OK)
+                    client.markDirty();
+            }
+        });
+
+        manager.add(new Action(Messages.SecurityMenuAddOptionEvent)
+        {
+            @Override
+            public void run()
+            {
+                OptionEventWizard wizard = new OptionEventWizard(stylingEngine, client, security);
                 WizardDialog dialog = new WizardDialog(ActiveShell.get(), wizard);
                 if (dialog.open() == Window.OK)
                     client.markDirty();

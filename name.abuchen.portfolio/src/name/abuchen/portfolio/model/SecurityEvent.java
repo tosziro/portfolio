@@ -10,7 +10,7 @@ public class SecurityEvent
 {
     public enum Type
     {
-        STOCK_SPLIT(false), NOTE(true), DIVIDEND_PAYMENT(false);
+        STOCK_SPLIT(false), NOTE(true), DIVIDEND_PAYMENT(false), OPTION_PREMIUM(true);
 
         private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("name.abuchen.portfolio.model.labels"); //$NON-NLS-1$
 
@@ -97,6 +97,152 @@ public class SecurityEvent
                 return false;
             DividendEvent other = (DividendEvent) obj;
             return Objects.equals(amount, other.amount) && Objects.equals(paymentDate, other.paymentDate);
+        }
+    }
+
+    public enum OptionType
+    {
+        CALL, PUT;
+
+        private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("name.abuchen.portfolio.model.labels"); //$NON-NLS-1$
+
+        @Override
+        public String toString()
+        {
+            return RESOURCES.getString("optionType." + name()); //$NON-NLS-1$
+        }
+    }
+
+    public enum OptionDirection
+    {
+        BOUGHT, SOLD;
+
+        private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("name.abuchen.portfolio.model.labels"); //$NON-NLS-1$
+
+        @Override
+        public String toString()
+        {
+            return RESOURCES.getString("optionDirection." + name()); //$NON-NLS-1$
+        }
+    }
+
+    public static class OptionEvent extends SecurityEvent
+    {
+        private OptionType optionType;
+        private OptionDirection direction;
+        private Money strikePrice;
+        private LocalDate expirationDate;
+        private Money premium;
+        private int contracts = 1;
+
+        public OptionEvent()
+        {
+            super(null, Type.OPTION_PREMIUM, null);
+        }
+
+        public OptionEvent(LocalDate date, OptionType optionType, OptionDirection direction, Money strikePrice,
+                        LocalDate expirationDate, Money premium, int contracts)
+        {
+            super(date, Type.OPTION_PREMIUM, null);
+            this.optionType = optionType;
+            this.direction = direction;
+            this.strikePrice = strikePrice;
+            this.expirationDate = expirationDate;
+            this.premium = premium;
+            this.contracts = contracts;
+        }
+
+        @Override
+        public void setType(Type type)
+        {
+            if (type != Type.OPTION_PREMIUM)
+                throw new IllegalArgumentException("type must be OPTION_PREMIUM but was " + type.name()); //$NON-NLS-1$
+        }
+
+        public OptionType getOptionType()
+        {
+            return optionType;
+        }
+
+        public void setOptionType(OptionType optionType)
+        {
+            this.optionType = optionType;
+        }
+
+        public OptionDirection getDirection()
+        {
+            return direction;
+        }
+
+        public void setDirection(OptionDirection direction)
+        {
+            this.direction = direction;
+        }
+
+        public Money getStrikePrice()
+        {
+            return strikePrice;
+        }
+
+        public void setStrikePrice(Money strikePrice)
+        {
+            this.strikePrice = strikePrice;
+        }
+
+        public LocalDate getExpirationDate()
+        {
+            return expirationDate;
+        }
+
+        public void setExpirationDate(LocalDate expirationDate)
+        {
+            this.expirationDate = expirationDate;
+        }
+
+        public Money getPremium()
+        {
+            return premium;
+        }
+
+        public void setPremium(Money premium)
+        {
+            this.premium = premium;
+        }
+
+        public int getContracts()
+        {
+            return contracts;
+        }
+
+        public void setContracts(int contracts)
+        {
+            this.contracts = contracts;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(optionType, direction, strikePrice, expirationDate, premium,
+                            contracts);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            OptionEvent other = (OptionEvent) obj;
+            return Objects.equals(optionType, other.optionType) && Objects.equals(direction, other.direction)
+                            && Objects.equals(strikePrice, other.strikePrice)
+                            && Objects.equals(expirationDate, other.expirationDate)
+                            && Objects.equals(premium, other.premium) && contracts == other.contracts;
         }
     }
 
