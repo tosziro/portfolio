@@ -1845,6 +1845,7 @@ public class ClientFactory
             xstreamWriter.addImmutableType(Dashboard.Column.class, false);
             xstreamWriter.addImmutableType(Dashboard.Widget.class, false);
             xstreamWriter.addImmutableType(SecurityEvent.class, false);
+            xstreamWriter.addImmutableType(SecurityEvent.OptionEvent.class, false);
             xstreamWriter.addImmutableType(ConfigurationSet.class, false);
             xstreamWriter.addImmutableType(ConfigurationSet.Configuration.class, false);
             xstreamWriter.addImmutableType(SecurityProperty.class, false);
@@ -1931,6 +1932,7 @@ public class ClientFactory
 
         xstream.alias("event", SecurityEvent.class);
         xstream.alias("dividendEvent", SecurityEvent.DividendEvent.class);
+        xstream.alias("optionEvent", SecurityEvent.OptionEvent.class);
         xstream.alias("config-set", ConfigurationSet.class);
         xstream.alias("config", ConfigurationSet.Configuration.class);
 
